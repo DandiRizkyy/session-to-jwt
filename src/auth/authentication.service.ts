@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { CreateUser} from './dto/input-auth.dto';
+import { CreateUser, LoginUser} from './dto/input-auth.dto';
 import { User } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+
 
 @Injectable()
 export class AuthenticationService {
     private readonly bcryptRound: number
-    constructor(private prismaService: PrismaService){
+    constructor(private prismaService: PrismaService, private jwtService: JwtService,){
         this.bcryptRound = parseInt(process.env['BCRYPT_SALT_ROUND']) || 10
     }
 
@@ -21,7 +23,6 @@ export class AuthenticationService {
                     password: hashPassword
                 }
             })
-    
             return `Successfully Registered.`
         } catch (error) {
             if (error.code === 'P2002' && error.meta.target.includes('email')){
@@ -31,22 +32,49 @@ export class AuthenticationService {
         
     }
 
-    async validateUser(email: string, password: string): Promise<User | null> {
-        const user = await this.prismaService.user.findFirst({
-            where:{
-                email,
-            }
-        })
+    // async validateUser(email: string, password: string): Promise<User | null> {
+    //     const user = await this.prismaService.user.findFirst({
+    //         where:{
+    //             email,
+    //         }
+    //     })
 
-        if (!user){
-            return null;
+    //     if (!user){
+    //         return null;
+    //     }
+
+    //     const isPasswordMatch: boolean = bcrypt.compareSync(password, user.password)
+    //     if (!isPasswordMatch){
+    //         return null;
+    //     }
+
+    //     return user;
+    // }
+
+    async login(email: string, password: string){
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                email: email,  
+            },
+        });
+
+        if(!user){
+            throw new NotFoundException(`Email or Password Invalid`);
         }
 
-        const isPasswordMatch: boolean = bcrypt.compareSync(password, user.password)
-        if (!isPasswordMatch){
-            return null;
-        }
+        const isPasswordMatch = bcrypt.compareSync(
+            password,
+            user.password
+        ); 
 
-        return user;
+        if(!isPasswordMatch){
+            throw new NotFoundException(`Wrong password`);
+        };
+        const token = this.jwtService.sign({ userId: user.id });
+
+        return {
+          accessToken: token,
+        };
     }
+
 }

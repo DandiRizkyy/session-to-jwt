@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger"
 import { IsEmail, IsNotEmpty } from "class-validator"
 
 export class CreateUser{
+
     @ApiProperty({default: "example@gmail.com"})
     @IsEmail()
     @IsNotEmpty()
@@ -13,6 +14,8 @@ export class CreateUser{
 }
 
 export class LoginUser{
+  
+
     @ApiProperty({default: "example@gmail.com"})
     @IsEmail()
     @IsNotEmpty()

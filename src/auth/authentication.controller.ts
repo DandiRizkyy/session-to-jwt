@@ -1,8 +1,6 @@
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { CreateUser, LoginUser } from './dto/input-auth.dto';
-import { LocalAuthGuard } from './local-auth.guard';
-import { AuthenticatedGuard } from './authenticated.guard';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from 'src/user/entities/user.entity';
 
@@ -19,16 +17,14 @@ export class AuthenticationController {
     }
 
     // login
-    @UseGuards(LocalAuthGuard)
     @Post('login')
     @ApiCreatedResponse({status: 201, description: 'Login Successfully'})
-    async loginUser(@Body() authDto: LoginUser){
-        console.log(`${authDto.email} is logging in`)
-        return `Login Successfully.`
+    async loginUser(@Body() {email, password}: LoginUser){
+        return await this.authService.login(email, password);
     }
 
     // logout
-    @UseGuards(AuthenticatedGuard)
+    // @UseGuards(AuthenticatedGuard)
     @Post('logout')
     @ApiCreatedResponse({status: 201, description: 'Logout Successfully'})
     logoutUser(@Request() req){

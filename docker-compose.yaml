@@ -1,27 +1,49 @@
-# For production
-version: '3.9'
+# for develop
+version: "3"
 services:
-  database:
-    image: postgres:alpine
-    container_name: dandirizky-mydatabase
-    hostname: database
-    volumes:
-    - postgres:/var/lib/postgresql/data
+  postgres:
+    image: postgres:14
     ports:
     - 5432:5432
-    env_file:
-    - .env
-    restart: always
-  app:
-    image: dandirizkyy/w15-dandi-myapp
-    container_name: dandirizky-myapp
-    build: .
+    environment:
+    - POSTGRES_DB=revou
+    - POSTGRES_USER=revou
+    - POSTGRES_PASSWORD=password
+    volumes:
+    - ./postgres-data:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=dandi@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=password
     ports:
-    - 4001:4001
-    env_file:
-    - .env
-    depends_on:
-    - database
-    restart: always
-volumes:
-  postgres:
+      - 15432:80
+
+
+# # For production
+# version: '3.9'
+# services:
+#   database:
+#     image: postgres:alpine
+#     container_name: dandirizky-mydatabase
+#     hostname: database
+#     volumes:
+#     - postgres:/var/lib/postgresql/data
+#     ports:
+#     - 5432:5432
+#     env_file:
+#     - .env
+#     restart: always
+#   app:
+#     image: dandirizkyy/w15-dandi-myapp
+#     container_name: dandirizky-myapp
+#     build: .
+#     ports:
+#     - 4001:4001
+#     env_file:
+#     - .env
+#     depends_on:
+#     - database
+#     restart: always
+# volumes:
+#   postgres:

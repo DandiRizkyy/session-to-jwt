@@ -3,10 +3,10 @@ import { ProductService } from './product.service';
 import { CreateProduct } from './dto/create-product.dto';
 import { UpdateProduct } from './dto/update-product.dto';
 import { PatchProduct } from './dto/patch-product.dto';
-import { AuthenticatedGuard } from 'src/auth/authenticated.guard';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ProductEntity } from './entities/product.entity';
 import { ProductRelationEntity } from './entities/product-relation.entity';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('products')
 @ApiTags('products')
@@ -14,7 +14,7 @@ export class ProductController {
     constructor(private productService: ProductService){}
     
     // get all product + query
-    @UseGuards(AuthenticatedGuard)
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({type: ProductEntity, isArray: true})
     @ApiBearerAuth()
     @ApiQuery({name: 'q', description: 'query searh for products', required: false, type: String})
@@ -24,7 +24,6 @@ export class ProductController {
     }
 
     // get by id
-    @UseGuards(AuthenticatedGuard)
     @ApiOkResponse({type: ProductRelationEntity, isArray: true})
     @ApiBearerAuth()
     @Get(':id')
@@ -33,7 +32,6 @@ export class ProductController {
     }
 
     // create product
-    @UseGuards(AuthenticatedGuard)
     @ApiCreatedResponse({type: ProductEntity})
     @ApiBearerAuth()
     @Post()
@@ -44,7 +42,6 @@ export class ProductController {
     }
 
     // update product
-    @UseGuards(AuthenticatedGuard)
     @ApiOkResponse({type: ProductEntity})
     @ApiBearerAuth()
     @Put(':id')
@@ -55,7 +52,6 @@ export class ProductController {
     }
 
     // update product (PATCH)
-    @UseGuards(AuthenticatedGuard)
     @ApiOkResponse({type: ProductEntity})
     @ApiBearerAuth()
     @Patch(':id')
@@ -66,7 +62,6 @@ export class ProductController {
     }
 
     // delete product
-    @UseGuards(AuthenticatedGuard)
     @ApiOkResponse({status: 200, description: 'Data with id: {id from user} successfully deleted.'})
     @ApiBearerAuth()
     @Delete(':id')
